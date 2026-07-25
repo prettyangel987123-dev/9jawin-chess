@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9ja Chess - Multiplayer Chess Game</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/board.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Main Menu -->
+        <div id="mainMenu" class="screen active">
+            <div class="menu-container">
+                <div class="logo">
+                    <h1>♟️ 9ja Chess</h1>
+                    <p>Production-Ready Multiplayer Chess</p>
+                </div>
+                <div class="menu-buttons">
+                    <button class="btn btn-primary" onclick="showScreen('quickMatch')">⚡ Quick Match</button>
+                    <button class="btn btn-secondary" onclick="showScreen('publicRooms')">🌐 Join Public Room</button>
+                    <button class="btn btn-secondary" onclick="showScreen('createRoom')">🏠 Create Room</button>
+                    <button class="btn btn-secondary" onclick="showScreen('joinPrivate')">🔐 Join Private Room</button>
+                    <button class="btn btn-secondary" onclick="showScreen('botMode')">🤖 Play vs Bot</button>
+                    <button class="btn btn-secondary" onclick="showScreen('offline')">📱 Offline Multiplayer</button>
+                    <button class="btn btn-info" onclick="showScreen('statistics')">📊 Statistics</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Match Screen -->
+        <div id="quickMatch" class="screen">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <h2 id="matchStatus">Searching for opponent...</h2>
+                <p id="waitTime">Waiting...</p>
+                <button class="btn btn-danger" onclick="cancelQuickMatch()">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Public Rooms Screen -->
+        <div id="publicRooms" class="screen">
+            <div class="rooms-container">
+                <div class="rooms-header">
+                    <h2>Public Chess Rooms</h2>
+                    <button class="btn btn-secondary" onclick="refreshRooms()">🔄 Refresh</button>
+                    <button class="btn btn-secondary" onclick="backToMenu()">← Back</button>
+                </div>
+                <div id="roomsList" class="rooms-list"></div>
+            </div>
+        </div>
+
+        <!-- Create Room Screen -->
+        <div id="createRoom" class="screen">
+            <div class="form-container">
+                <h2>Create New Room</h2>
+                <form onsubmit="createNewRoom(event)">
+                    <div class="form-group">
+                        <label>Room Name</label>
+                        <input type="text" id="roomName" placeholder="e.g., Friendly Match" required>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="isPublic" checked>
+                            Make Public
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Password (optional)</label>
+                        <input type="password" id="roomPassword" placeholder="Leave empty for no password">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">Create Room</button>
+                        <button type="button" class="btn btn-secondary" onclick="backToMenu()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Join Private Room -->
+        <div id="joinPrivate" class="screen">
+            <div class="form-container">
+                <h2>Join Private Room</h2>
+                <form onsubmit="joinPrivateRoom(event)">
+                    <div class="form-group">
+                        <label>Room Code</label>
+                        <input type="text" id="roomCode" placeholder="Enter 6-digit code" maxlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password (if required)</label>
+                        <input type="password" id="joinPassword" placeholder="Leave empty if no password">
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">Join Room</button>
+                        <button type="button" class="btn btn-secondary" onclick="backToMenu()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bot Mode Screen -->
+        <div id="botMode" class="screen">
+            <div class="form-container">
+                <h2>Play vs Bot</h2>
+                <form onsubmit="startBotGame(event)">
+                    <div class="form-group">
+                        <label>Select Difficulty</label>
+                        <select id="botDifficulty" required>
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Play as</label>
+                        <select id="playerColor" required>
+                            <option value="white">White (You move first)</option>
+                            <option value="black">Black (Bot moves first)</option>
+                        </select>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">Start Game</button>
+                        <button type="button" class="btn btn-secondary" onclick="backToMenu()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Offline Mode -->
+        <div id="offline" class="screen">
+            <div class="form-container">
+                <h2>Offline Multiplayer</h2>
+                <form onsubmit="startOfflineGame(event)">
+                    <div class="form-group">
+                        <label>Player 1 Name</label>
+                        <input type="text" id="player1Name" placeholder="Enter name" value="Player 1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Player 2 Name</label>
+                        <input type="text" id="player2Name" placeholder="Enter name" value="Player 2" required>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="btn btn-primary">Start Game</button>
+                        <button type="button" class="btn btn-secondary" onclick="backToMenu()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Statistics Screen -->
+        <div id="statistics" class="screen">
+            <div class="stats-container">
+                <h2>Game Statistics</h2>
+                <div id="statsContent" class="stats-content"></div>
+                <button class="btn btn-secondary" onclick="backToMenu()">← Back</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen">
+            <div class="game-container">
+                <div class="game-header">
+                    <div class="player-info player-black">
+                        <h3 id="opponentName">Opponent</h3>
+                        <p>Points: <span id="opponentPoints">0</span></p>
+                        <p>Captured: <span id="opponentCaptured">0</span></p>
+                    </div>
+                    <div class="game-status">
+                        <h2 id="gameTitle">Chess Game</h2>
+                        <div class="timers">
+                            <div class="timer">
+                                <span>Turn: </span>
+                                <span id="turnTimer">10</span>s
+                            </div>
+                            <div class="timer">
+                                <span>Match: </span>
+                                <span id="matchTimer">10:00</span>
+                            </div>
+                        </div>
+                        <p id="gameStatus">White's turn</p>
+                    </div>
+                    <div class="player-info player-white">
+                        <h3 id="playerName">You</h3>
+                        <p>Points: <span id="playerPoints">0</span></p>
+                        <p>Captured: <span id="playerCaptured">0</span></p>
+                    </div>
+                </div>
+
+                <div class="game-board-area">
+                    <div id="board" class="board"></div>
+                    <div class="board-controls">
+                        <button class="btn btn-secondary" onclick="undoMove()">↶ Undo</button>
+                        <button class="btn btn-info" onclick="offerDraw()">✋ Offer Draw</button>
+                        <button class="btn btn-danger" onclick="resignGame()">🚩 Resign</button>
+                        <button class="btn btn-secondary" onclick="backToMenu()">← Menu</button>
+                    </div>
+                </div>
+
+                <div class="move-history">
+                    <h4>Move History</h4>
+                    <div id="moveList" class="move-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Dialogs -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <div id="modalBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Socket.IO Library -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
+    <!-- Game Scripts -->
+    <script src="js/utils/storage.js"></script>
+    <script src="js/utils/audio.js"></script>
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/state/PlayerState.js"></script>
+    <script src="js/state/GameState.js"></script>
+    <script src="js/socket-client.js"></script>
+    <script src="js/game/ChessLogic.js"></script>
+    <script src="js/game/MoveHandler.js"></script>
+    <script src="js/game/TimerManager.js"></script>
+    <script src="js/ui/Board.js"></script>
+    <script src="js/ui/Menu.js"></script>
+    <script src="js/ui/GameScreen.js"></script>
+    <script src="js/ui/Animations.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
